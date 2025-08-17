@@ -1,98 +1,180 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Shop — NestJS E‑commerce Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A modular e‑commerce backend built with NestJS, TypeScript, Prisma, and PostgreSQL. The codebase is scaffolded for clean separation of concerns and ready for business logic implementation.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- Modular architecture: `Auth`, `Users`, `Products`, `Orders`, `Returns`, `Inventory`
+- Prisma ORM with PostgreSQL
+- JWT auth scaffolding with Passport
+- Role-based access control scaffolding (`@Roles`, `RolesGuard`, `JwtAuthGuard`, `@Public`)
+- Global validation, exception filter, logging and response transform interceptors
+- Swagger/OpenAPI docs at `/docs`
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Project setup
+- **Runtime**: Node.js, TypeScript
+- **Framework**: NestJS 11
+- **ORM**: Prisma
+- **DB**: PostgreSQL
+- **Validation**: class-validator / class-transformer
+- **Auth**: @nestjs/passport, @nestjs/jwt, passport-jwt
+- **Docs**: @nestjs/swagger
 
-```bash
-$ npm install
-```
+## Prerequisites
 
-## Compile and run the project
+- Node.js 18+ and npm
+- PostgreSQL (local install or Docker Desktop)
 
-```bash
-# development
-$ npm run start
+Optional:
 
-# watch mode
-$ npm run start:dev
+- Docker Desktop (to run Postgres via `docker compose`)
 
-# production mode
-$ npm run start:prod
-```
+## Quick Start
 
-## Run tests
+1. Install dependencies
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
+2. Configure environment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Copy the example and adjust values as needed:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Recommended `.env` values for local dev:
 
-## Resources
+```bash
+DATABASE_URL=postgresql://shop:shop@localhost:5432/shop?schema=public
+PORT=3000
+JWT_ACCESS_SECRET=change-me
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+3. Start PostgreSQL
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- With Docker Desktop (optional):
 
-## Support
+```bash
+npm run db:up
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+This starts Postgres 16 on port 5432 with db/user/password `shop`.
 
-## Stay in touch
+- Or use your local PostgreSQL and ensure the role/database exist:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+# Create role and database (using default superuser)
+psql -h localhost -p 5432 -U postgres -d postgres -c "CREATE ROLE shop LOGIN PASSWORD 'shop'" || true
+createdb -h localhost -p 5432 -U postgres shop || true
+psql -h localhost -p 5432 -U postgres -d postgres -c "ALTER DATABASE shop OWNER TO shop;"
+```
+
+4. Generate Prisma client and run migrations
+
+```bash
+npm run prisma:generate
+npm run prisma:migrate:dev -- --name init
+```
+
+5. Run the app (watch mode)
+
+```bash
+npm run start:dev
+```
+
+6. Open Swagger UI
+
+- Swagger UI: [http://localhost:3000/docs](http://localhost:3000/docs)
+- API base URL: [http://localhost:3000](http://localhost:3000)
+
+## NPM Scripts
+
+- `start` — start app
+- `start:dev` — start in watch mode
+- `build` — compile TypeScript
+- `lint` — run ESLint
+- `test`, `test:e2e` — run tests
+- `prisma:generate` — generate Prisma client
+- `prisma:migrate:dev` — run Prisma development migrations
+- `prisma:studio` — open Prisma Studio
+- `db:up` — start Postgres via Docker Compose
+- `db:down` — stop Postgres and remove volumes
+
+## Project Layout
+
+```
+src/
+├── common/
+│   ├── decorators/ (roles, public)
+│   ├── enums/ (role, order-status, return-status)
+│   ├── filters/ (http-exception)
+│   ├── guards/ (jwt-auth, roles)
+│   └── interceptors/ (logging, response-transform)
+├── prisma/
+│   ├── prisma.module.ts
+│   └── prisma.service.ts
+├── auth/
+│   ├── auth.controller.ts
+│   ├── auth.service.ts
+│   ├── auth.module.ts
+│   ├── dto/ (login, register, change-password, forgot-password)
+│   └── strategies/ (jwt.strategy)
+├── users/ (controller, service, module, dto)
+├── products/ (controller, service, module, dto)
+├── orders/ (controller, service, module, dto)
+├── returns/ (controller, service, module, dto)
+└── inventory/ (controller, service, module, dto)
+```
+
+## Database & Prisma
+
+Prisma schema is defined in `prisma/schema.prisma` with the following models and enums:
+
+- Models: `User`, `Product`, `Inventory`, `Order`, `OrderItem`, `Return`
+- Enums: `Role`, `OrderStatus`, `ReturnStatus`
+
+Migrations are managed with `prisma migrate dev`. The app uses `DATABASE_URL` from `.env` via `@nestjs/config`.
+
+## Security & Auth (Scaffolded)
+
+- JWT strategy via `passport-jwt`
+- Guards: `JwtAuthGuard`, `RolesGuard`
+- Decorators: `@Roles()`, `@Public()`
+- Set your secrets in `.env`:
+
+```bash
+JWT_ACCESS_SECRET=change-me
+```
+
+## Conventions
+
+- DTOs use class-validator decorators
+- Controllers define method signatures and Swagger decorators, not business logic
+- Services provide method signatures for CRUD and operations
+- Global ValidationPipe, exception filter, and response transformer are enabled in `main.ts`
+
+## Troubleshooting
+
+- P1010: "User was denied access"
+  - Fix your `DATABASE_URL` credentials, or create the role and grant access.
+
+- P3014: "Could not create the shadow database"
+  - Grant CREATEDB to your DB user:
+
+  ```bash
+  psql -h localhost -p 5432 -U postgres -d postgres -c "ALTER ROLE shop CREATEDB;"
+  ```
+
+- Swagger not reachable at `/docs`
+  - Ensure the app is running and `PORT` matches your URL.
+
+- Postgres not running
+  - Start Docker: `npm run db:up` (requires Docker Desktop) or start your local Postgres service.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED (private/internal use).
