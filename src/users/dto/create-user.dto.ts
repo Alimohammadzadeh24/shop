@@ -42,9 +42,31 @@ export class CreateUserDto {
   lastName!: string;
 
   @ApiProperty({
-    description: 'User role in the system',
+    description:
+      'User role in the system. Determines access level and admin panel permissions.',
     enum: RoleEnum,
-    example: RoleEnum.USER,
+    examples: {
+      admin: {
+        summary: 'System Administrator',
+        value: RoleEnum.ADMIN,
+        description: 'Full system access with all admin panel permissions',
+      },
+      primary: {
+        summary: 'Primary Admin',
+        value: RoleEnum.PRIMARY,
+        description: 'Admin panel access with most administrative capabilities',
+      },
+      secondary: {
+        summary: 'Secondary Admin',
+        value: RoleEnum.SECONDARY,
+        description: 'Limited admin panel access for specific tasks',
+      },
+      user: {
+        summary: 'Frontend User',
+        value: RoleEnum.USER,
+        description: 'Standard user with frontend-only access',
+      },
+    },
   })
   @IsEnum(RoleEnum)
   role!: RoleEnum;

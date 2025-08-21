@@ -46,9 +46,31 @@ export class UpdateUserDto {
   lastName?: string;
 
   @ApiPropertyOptional({
-    description: 'User role in the system',
+    description:
+      'User role in the system. Changes access level and admin panel permissions.',
     enum: RoleEnum,
-    example: RoleEnum.ADMIN,
+    examples: {
+      promoteToAdmin: {
+        summary: 'Promote to Administrator',
+        value: RoleEnum.ADMIN,
+        description: 'Grant full system access',
+      },
+      demoteToUser: {
+        summary: 'Demote to User',
+        value: RoleEnum.USER,
+        description: 'Restrict to frontend-only access',
+      },
+      setPrimary: {
+        summary: 'Set as Primary Admin',
+        value: RoleEnum.PRIMARY,
+        description: 'Grant admin panel access with most features',
+      },
+      setSecondary: {
+        summary: 'Set as Secondary Admin',
+        value: RoleEnum.SECONDARY,
+        description: 'Grant limited admin panel access',
+      },
+    },
   })
   @IsEnum(RoleEnum)
   @IsOptional()

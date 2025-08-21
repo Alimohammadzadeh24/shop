@@ -41,9 +41,31 @@ export class RegisterDto {
   lastName!: string;
 
   @ApiProperty({
-    description: 'User role (defaults to USER if not specified)',
+    description:
+      'User role (defaults to USER if not specified). ADMIN/PRIMARY/SECONDARY have admin panel access, USER is frontend-only.',
     enum: RoleEnum,
-    example: RoleEnum.USER,
+    examples: {
+      admin: {
+        summary: 'Full Administrator',
+        value: RoleEnum.ADMIN,
+        description: 'Complete system access and admin panel permissions',
+      },
+      primary: {
+        summary: 'Primary Administrator',
+        value: RoleEnum.PRIMARY,
+        description: 'Admin panel access with most administrative features',
+      },
+      secondary: {
+        summary: 'Secondary Administrator',
+        value: RoleEnum.SECONDARY,
+        description: 'Limited admin panel access',
+      },
+      user: {
+        summary: 'Regular User',
+        value: RoleEnum.USER,
+        description: 'Frontend-only access, no admin panel permissions',
+      },
+    },
     required: false,
     default: RoleEnum.USER,
   })
