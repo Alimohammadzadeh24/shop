@@ -17,6 +17,13 @@ import { UserMapper } from '../domain/mappers/user.mapper';
 import { generateId } from '../common/utils/id';
 import { RoleEnum } from '../common/enums/role.enum';
 
+/**
+ * Service responsible for handling authentication operations including login, registration,
+ * password management, and JWT token generation.
+ *
+ * @class AuthService
+ * @since 1.0.0
+ */
 @Injectable()
 export class AuthService {
   constructor(
@@ -24,6 +31,26 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  /**
+   * Authenticates a user with email and password, returning JWT tokens and user information.
+   *
+   * @async
+   * @function login
+   * @param {LoginDto} dto - Login credentials containing email and password
+   * @returns {Promise<AuthResponseDto>} Authentication response with tokens and user data
+   * @throws {UnauthorizedException} When credentials are invalid or account is deactivated
+   *
+   * @example
+   * ```typescript
+   * const result = await authService.login({
+   *   email: 'user@example.com',
+   *   password: 'securePassword123'
+   * });
+   * console.log(result.accessToken); // JWT access token
+   * ```
+   *
+   * @since 1.0.0
+   */
   async login(dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.usersRepository.findByEmail(dto.email);
     if (!user) {
@@ -63,6 +90,30 @@ export class AuthService {
     };
   }
 
+  /**
+   * Registers a new user account with email, password, and profile information.
+   * Automatically generates JWT tokens upon successful registration.
+   *
+   * @async
+   * @function register
+   * @param {RegisterDto} dto - Registration data including email, password, and profile info
+   * @returns {Promise<AuthResponseDto>} Authentication response with tokens and user data
+   * @throws {ConflictException} When email address is already registered
+   *
+   * @example
+   * ```typescript
+   * const result = await authService.register({
+   *   email: 'newuser@example.com',
+   *   password: 'securePassword123',
+   *   firstName: 'John',
+   *   lastName: 'Doe',
+   *   role: RoleEnum.USER
+   * });
+   * console.log(result.user.id); // New user ID
+   * ```
+   *
+   * @since 1.0.0
+   */
   async register(dto: RegisterDto): Promise<AuthResponseDto> {
     const existingUser = await this.usersRepository.findByEmail(dto.email);
     if (existingUser) {
@@ -105,6 +156,29 @@ export class AuthService {
     };
   }
 
+  /**
+   * Changes the password for an authenticated user after validating the current password.
+   * Requires the user to provide their current password for security verification.
+   *
+   * @async
+   * @function changePassword
+   * @param {ChangePasswordDto} dto - Password change data with current and new passwords
+   * @param {string} userId - ID of the authenticated user requesting password change
+   * @returns {Promise<MessageResponseDto>} Success message confirming password change
+   * @throws {NotFoundException} When user is not found
+   * @throws {BadRequestException} When current password is incorrect or same as new password
+   *
+   * @example
+   * ```typescript
+   * const result = await authService.changePassword({
+   *   currentPassword: 'oldPassword123',
+   *   newPassword: 'newSecurePassword456'
+   * }, 'user-id-123');
+   * console.log(result.message); // "Password changed successfully"
+   * ```
+   *
+   * @since 1.0.0
+   */
   async changePassword(
     dto: ChangePasswordDto,
     userId: string,
@@ -140,6 +214,28 @@ export class AuthService {
     };
   }
 
+  /**
+   * Handles password reset requests by email. For security reasons, always returns
+   * the same response regardless of whether the email exists in the system.
+   *
+   * @async
+   * @function forgotPassword
+   * @param {ForgotPasswordDto} dto - Password reset request containing email address
+   * @returns {Promise<MessageResponseDto>} Generic success message for security
+   *
+   * @example
+   * ```typescript
+   * const result = await authService.forgotPassword({
+   *   email: 'user@example.com'
+   * });
+   * console.log(result.message); // Generic success message
+   * ```
+   *
+   * @todo Implement email sending functionality with reset tokens
+   * @see {@link https://nodemailer.com/} for email implementation
+   *
+   * @since 1.0.0
+   */
   async forgotPassword(dto: ForgotPasswordDto): Promise<MessageResponseDto> {
     const user = await this.usersRepository.findByEmail(dto.email);
     if (!user) {

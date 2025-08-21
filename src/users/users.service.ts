@@ -6,10 +6,41 @@ import { UserMapper } from '../domain/mappers/user.mapper';
 import { UsersRepository } from './users.repository';
 import { generateId } from '../common/utils/id';
 
+/**
+ * Service responsible for managing user operations including creation, retrieval,
+ * updating, and deletion of user accounts.
+ *
+ * @class UsersService
+ * @since 1.0.0
+ */
 @Injectable()
 export class UsersService {
   constructor(private readonly repo: UsersRepository) {}
 
+  /**
+   * Creates a new user account with the provided information.
+   *
+   * @async
+   * @function create
+   * @param {CreateUserDto} dto - User creation data including email, password, and profile info
+   * @returns {Promise<UserModel>} The created user model
+   * @throws {ConflictException} When email address is already in use
+   *
+   * @example
+   * ```typescript
+   * const user = await usersService.create({
+   *   email: 'user@example.com',
+   *   password: 'securePassword123',
+   *   firstName: 'John',
+   *   lastName: 'Doe',
+   *   role: RoleEnum.USER,
+   *   isActive: true
+   * });
+   * console.log(user.id); // Generated user ID
+   * ```
+   *
+   * @since 1.0.0
+   */
   async create(dto: CreateUserDto): Promise<UserModel> {
     const model = UserMapper.fromCreateDto(dto);
     return this.repo.create({
@@ -22,10 +53,54 @@ export class UsersService {
     } as any);
   }
 
+  /**
+   * Retrieves a user by their unique identifier.
+   *
+   * @async
+   * @function findOne
+   * @param {string} id - The unique identifier of the user
+   * @returns {Promise<UserModel | undefined>} The user model if found, undefined otherwise
+   *
+   * @example
+   * ```typescript
+   * const user = await usersService.findOne('user-id-123');
+   * if (user) {
+   *   console.log(user.email); // User email
+   * } else {
+   *   console.log('User not found');
+   * }
+   * ```
+   *
+   * @since 1.0.0
+   */
   async findOne(id: string): Promise<UserModel | undefined> {
     return this.repo.findById(id);
   }
 
+  /**
+   * Updates an existing user with the provided information. Only fields included
+   * in the DTO will be updated, other fields remain unchanged.
+   *
+   * @async
+   * @function update
+   * @param {string} id - The unique identifier of the user to update
+   * @param {UpdateUserDto} dto - Partial user data to update
+   * @returns {Promise<UserModel | undefined>} The updated user model if found, undefined otherwise
+   *
+   * @example
+   * ```typescript
+   * const updatedUser = await usersService.update('user-id-123', {
+   *   firstName: 'Jane',
+   *   lastName: 'Smith',
+   *   isActive: false
+   * });
+   * if (updatedUser) {
+   *   console.log(updatedUser.firstName); // "Jane"
+   * }
+   * ```
+   *
+   * @since 1.0.0
+   */
   async update(id: string, dto: UpdateUserDto): Promise<UserModel | undefined> {
     const existing = await this.repo.findById(id);
     if (!existing) return undefined;
@@ -40,6 +115,27 @@ export class UsersService {
     } as any);
   }
 
+  /**
+   * Permanently removes a user from the system. This operation cannot be undone.
+   *
+   * @async
+   * @function remove
+   * @param {string} id - The unique identifier of the user to remove
+   * @returns {Promise<boolean>} True if user was successfully removed, false if user not found
+   *
+   * @example
+   * ```typescript
+   * const wasRemoved = await usersService.remove('user-id-123');
+   * if (wasRemoved) {
+   *   console.log('User successfully removed');
+   * } else {
+   *   console.log('User not found');
+   * }
+   * ```
+   *
+   * @warning This operation permanently deletes the user and cannot be undone
+   * @since 1.0.0
+   */
   async remove(id: string): Promise<boolean> {
     return this.repo.remove(id);
   }

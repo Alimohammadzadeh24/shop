@@ -10,34 +10,64 @@ import {
 } from 'class-validator';
 
 export class CreateProductDto {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Product name',
+    example: 'Wireless Headphones',
+  })
   @IsString()
   name!: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Detailed product description',
+    example:
+      'High-quality wireless headphones with noise cancellation and 20-hour battery life',
+    minLength: 1,
+  })
   @IsString()
   @MinLength(1)
   description!: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Product price in USD',
+    example: 299.99,
+    minimum: 0,
+  })
   @IsNumber()
   @Min(0)
   price!: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Product category',
+    example: 'Electronics',
+  })
   @IsString()
   category!: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Product brand',
+    example: 'TechBrand',
+  })
   @IsString()
   brand!: string;
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({
+    description: 'Array of product image URLs',
+    type: [String],
+    example: [
+      'https://example.com/headphones1.jpg',
+      'https://example.com/headphones2.jpg',
+    ],
+  })
   @IsArray()
   @IsString({ each: true })
   images!: string[];
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    description: 'Whether the product is active in the catalog',
+    example: true,
+    default: true,
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
