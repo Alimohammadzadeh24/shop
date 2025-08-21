@@ -7,11 +7,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
+import { OrderMapper } from '../domain/mappers/order.mapper';
+import { OrderResponseDto } from './dto/order-response.dto';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -19,25 +21,33 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  create(@Body() _dto: CreateOrderDto): Promise<unknown> {
-    return Promise.resolve({});
+  @ApiCreatedResponse({ type: OrderResponseDto })
+  async create(@Body() dto: CreateOrderDto): Promise<unknown> {
+    const model = await this.ordersService.create(dto);
+    return OrderMapper.toResponseDto(model);
   }
 
   @Get()
-  findAll(@Query() _query: OrderQueryDto): Promise<unknown> {
-    return Promise.resolve({});
+  @ApiOkResponse({ type: [OrderResponseDto] })
+  async findAll(@Query() query: OrderQueryDto): Promise<unknown> {
+    const models = await this.ordersService.findAll(query);
+    return models.map(OrderMapper.toResponseDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') _id: string): Promise<unknown> {
-    return Promise.resolve({});
+  @ApiOkResponse({ type: OrderResponseDto })
+  async findOne(@Param('id') id: string): Promise<unknown> {
+    const model = await this.ordersService.findOne(id);
+    return model ? OrderMapper.toResponseDto(model) : {};
   }
 
   @Patch(':id/status')
-  updateStatus(
-    @Param('id') _id: string,
-    @Body() _dto: UpdateOrderStatusDto,
+  @ApiOkResponse({ type: OrderResponseDto })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateOrderStatusDto,
   ): Promise<unknown> {
-    return Promise.resolve({});
+    const model = await this.ordersService.updateStatus(id, dto);
+    return model ? OrderMapper.toResponseDto(model) : {};
   }
 }
