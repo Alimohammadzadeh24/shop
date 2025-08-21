@@ -20,7 +20,9 @@ function mapDbToModel(row: any): UserModel {
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Omit<UserModel, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserModel> {
+  async create(
+    data: Omit<UserModel, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<UserModel> {
     const created = await this.prisma.user.create({
       data,
     });
@@ -32,7 +34,15 @@ export class UsersRepository {
     return row ? mapDbToModel(row) : undefined;
   }
 
-  async update(id: string, data: Partial<UserModel>): Promise<UserModel | undefined> {
+  async findByEmail(email: string): Promise<UserModel | undefined> {
+    const row = await this.prisma.user.findUnique({ where: { email } });
+    return row ? mapDbToModel(row) : undefined;
+  }
+
+  async update(
+    id: string,
+    data: Partial<UserModel>,
+  ): Promise<UserModel | undefined> {
     const updated = await this.prisma.user.update({ where: { id }, data });
     return updated ? mapDbToModel(updated) : undefined;
   }
@@ -42,5 +52,3 @@ export class UsersRepository {
     return true;
   }
 }
-
-

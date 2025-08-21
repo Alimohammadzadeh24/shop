@@ -1,26 +1,53 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsString,
+  MinLength,
+  IsOptional,
+} from 'class-validator';
 import { RoleEnum } from '../../common/enums/role.enum';
 
 export class RegisterDto {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User email address (must be unique)',
+    example: 'newuser@example.com',
+    format: 'email',
+  })
   @IsEmail()
   email!: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User password',
+    example: 'securePassword123',
+    minLength: 6,
+  })
   @IsString()
   @MinLength(6)
   password!: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User first name',
+    example: 'John',
+  })
   @IsString()
   firstName!: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User last name',
+    example: 'Doe',
+  })
   @IsString()
   lastName!: string;
 
-  @ApiProperty({ enum: RoleEnum, required: false })
+  @ApiProperty({
+    description: 'User role (defaults to USER if not specified)',
+    enum: RoleEnum,
+    example: RoleEnum.USER,
+    required: false,
+    default: RoleEnum.USER,
+  })
   @IsEnum(RoleEnum)
-  role!: RoleEnum;
+  @IsOptional()
+  role?: RoleEnum;
 }
