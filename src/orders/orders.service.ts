@@ -49,8 +49,8 @@ export class OrdersService {
    *
    * @since 1.0.0
    */
-  async create(dto: CreateOrderDto): Promise<OrderModel> {
-    const model = OrderMapper.fromCreateDto(dto);
+  async create(userId: string, dto: CreateOrderDto): Promise<OrderModel> {
+    const model = OrderMapper.fromCreateDto(dto, userId);
     return this.repo.create({
       userId: model.userId,
       totalAmount: model.totalAmount,

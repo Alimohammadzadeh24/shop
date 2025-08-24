@@ -4,7 +4,7 @@ import { OrderResponseDto } from '../../orders/dto/order-response.dto';
 import { OrderStatusEnum } from '../../common/enums/order-status.enum';
 
 export class OrderMapper {
-  static fromCreateDto(dto: CreateOrderDto): OrderModel {
+  static fromCreateDto(dto: CreateOrderDto, userId: string): OrderModel {
     const now = new Date();
     const items: OrderItemModel[] = dto.items.map((i) => ({
       id: '',
@@ -16,7 +16,7 @@ export class OrderMapper {
     }));
     return {
       id: '',
-      userId: dto.userId,
+      userId,
       status: OrderStatusEnum.PENDING,
       totalAmount: dto.totalAmount,
       shippingAddress: dto.shippingAddress,
@@ -38,5 +38,3 @@ export class OrderMapper {
     };
   }
 }
-
-

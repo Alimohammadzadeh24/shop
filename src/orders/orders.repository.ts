@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrderItemModel, OrderModel } from '../domain/order.model';
 import { OrderQueryDto } from './dto/order-query.dto';
@@ -42,23 +43,43 @@ export class OrdersRepository {
       totalPrice: number;
     }>;
   }): Promise<OrderModel> {
-    const created = await this.prisma.order.create({
-      data: {
-        userId: data.userId,
-        totalAmount: data.totalAmount,
-        shippingAddress: data.shippingAddress as any,
-        items: {
-          create: data.items.map((i) => ({
-            productId: i.productId,
-            quantity: i.quantity,
-            unitPrice: i.unitPrice,
-            totalPrice: i.totalPrice,
-          })),
+    try {
+      const created = await this.prisma.order.create({
+        data: {
+          userId: data.userId,
+          totalAmount: data.totalAmount,
+          shippingAddress: data.shippingAddress as any,
+          items: {
+            create: data.items.map((i) => ({
+              productId: i.productId,
+              quantity: i.quantity,
+              unitPrice: i.unitPrice,
+              totalPrice: i.totalPrice,
+            })),
+          },
         },
-      },
-      include: { items: true },
-    });
-    return mapOrder(created);
+        include: { items: true },
+      });
+      return mapOrder(created);
+    } catch (error: unknown) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2003') {
+          const fieldName = (error.meta?.field_name as string) ?? '';
+          if (fieldName.includes('userId')) {
+            throw new BadRequestException('User not found for provided userId');
+          }
+          if (fieldName.includes('productId')) {
+            throw new BadRequestException(
+              'Product not found for one or more items',
+            );
+          }
+          throw new BadRequestException(
+            'Foreign key constraint failed. Check userId and productIds',
+          );
+        }
+      }
+      throw error;
+    }
   }
 
   async findAll(query: OrderQueryDto): Promise<OrderModel[]> {
@@ -83,7 +104,10 @@ export class OrdersRepository {
     return row ? mapOrder(row) : undefined;
   }
 
-  async updateStatus(id: string, status: string): Promise<OrderModel | undefined> {
+  async updateStatus(
+    id: string,
+    status: string,
+  ): Promise<OrderModel | undefined> {
     const updated = await this.prisma.order.update({
       where: { id },
       data: { status: status as any },
@@ -92,5 +116,3 @@ export class OrdersRepository {
     return updated ? mapOrder(updated) : undefined;
   }
 }
-
-

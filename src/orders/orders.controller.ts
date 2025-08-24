@@ -8,6 +8,8 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -26,6 +28,9 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { OrderMapper } from '../domain/mappers/order.mapper';
 import { OrderResponseDto } from './dto/order-response.dto';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtPayload } from '../common/types/jwt-payload.interface';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -33,6 +38,8 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a new order',
@@ -46,7 +53,6 @@ export class OrdersController {
       singleItem: {
         summary: 'Single item order',
         value: {
-          userId: 'clx1b2c3d4e5f6g7h8i9j0k1',
           items: [
             {
               productId: 'clx1b2c3d4e5f6g7h8i9j0k2',
@@ -66,7 +72,6 @@ export class OrdersController {
       multipleItems: {
         summary: 'Multiple items order',
         value: {
-          userId: 'clx1b2c3d4e5f6g7h8i9j0k1',
           items: [
             {
               productId: 'clx1b2c3d4e5f6g7h8i9j0k2',
@@ -98,16 +103,16 @@ export class OrdersController {
     description: 'Validation error',
     example: {
       statusCode: 400,
-      message: [
-        'userId should not be empty',
-        'items should not be empty',
-        'shippingAddress is required',
-      ],
+      message: ['items should not be empty', 'shippingAddress is required'],
       error: 'Bad Request',
     },
   })
-  async create(@Body() dto: CreateOrderDto): Promise<unknown> {
-    const model = await this.ordersService.create(dto);
+  async create(
+    @Request() req: { user: JwtPayload },
+    @Body() dto: CreateOrderDto,
+  ): Promise<unknown> {
+    const userId: string = req.user.sub;
+    const model = await this.ordersService.create(userId, dto);
     return OrderMapper.toResponseDto(model);
   }
 
