@@ -9,7 +9,6 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -26,11 +25,12 @@ import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
+import { MyOrdersQueryDto } from './dto/my-orders-query.dto';
 import { OrderMapper } from '../domain/mappers/order.mapper';
 import { OrderResponseDto } from './dto/order-response.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { JwtPayload } from '../common/types/jwt-payload.interface';
+import { User } from '../common/decorators/user.decorator';
 
 @ApiTags('orders')
 @Controller('orders')
@@ -108,19 +108,18 @@ export class OrdersController {
     },
   })
   async create(
-    @Request() req: { user: JwtPayload },
+    @User('sub') userId: string,
     @Body() dto: CreateOrderDto,
   ): Promise<unknown> {
-    const userId: string = req.user.sub;
     const model = await this.ordersService.create(userId, dto);
     return OrderMapper.toResponseDto(model);
   }
 
   @Get()
   @ApiOperation({
-    summary: 'Get all orders',
+    summary: 'Get all orders (Admin only)',
     description:
-      'Retrieve orders with optional filtering by user, status, and date range. Supports pagination.',
+      'Retrieve all orders with optional filtering by user, status, and date range. Supports pagination.',
   })
   @ApiQuery({
     name: 'userId',
@@ -154,6 +153,49 @@ export class OrdersController {
   })
   async findAll(@Query() query: OrderQueryDto): Promise<unknown> {
     const models = await this.ordersService.findAll(query);
+    return models.map(OrderMapper.toResponseDto);
+  }
+
+  @Get('my-orders')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get current user orders',
+    description:
+      'Retrieve orders for the currently authenticated user with optional filtering by status and pagination.',
+  })
+  @ApiQuery({
+    name: 'status',
+    description: 'Filter orders by status',
+    required: false,
+    example: 'PENDING',
+  })
+  @ApiQuery({
+    name: 'skip',
+    description: 'Number of orders to skip for pagination',
+    required: false,
+    type: Number,
+    example: 0,
+  })
+  @ApiQuery({
+    name: 'take',
+    description: 'Number of orders to return (max 50)',
+    required: false,
+    type: Number,
+    example: 10,
+  })
+  @ApiOkResponse({
+    description: 'User orders retrieved successfully',
+    type: [OrderResponseDto],
+  })
+  async getMyOrders(
+    @User('sub') userId: string,
+    @Query() query: MyOrdersQueryDto,
+  ): Promise<unknown> {
+    // Create the full query with userId from token
+    const fullQuery: OrderQueryDto = { ...query, userId };
+    const models = await this.ordersService.findAll(fullQuery);
+
     return models.map(OrderMapper.toResponseDto);
   }
 

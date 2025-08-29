@@ -5,7 +5,6 @@ import {
   Post,
   Body,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,6 +17,7 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
+import { User } from '../common/decorators/user.decorator';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -251,9 +251,9 @@ export class AuthController {
   })
   changePassword(
     @Body() dto: ChangePasswordDto,
-    @Request() req: any,
+    @User('sub') userId: string,
   ): Promise<MessageResponseDto> {
-    return this.authService.changePassword(dto, req.user.sub);
+    return this.authService.changePassword(dto, userId);
   }
 
   @Post('forgot-password')

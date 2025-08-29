@@ -41,8 +41,8 @@ export class ReturnsService {
    *
    * @since 1.0.0
    */
-  async create(dto: CreateReturnDto): Promise<ReturnModel> {
-    const model = ReturnMapper.fromCreateDto(dto);
+  async create(userId: string, dto: CreateReturnDto): Promise<ReturnModel> {
+    const model = ReturnMapper.fromCreateDto(dto, userId);
     return this.repo.create({
       orderId: model.orderId,
       userId: model.userId,

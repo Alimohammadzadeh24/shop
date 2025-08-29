@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserModel } from '../domain/user.model';
+import { UserQueryDto } from './dto/user-query.dto';
 
 function mapDbToModel(row: any): UserModel {
   return {
@@ -50,5 +51,27 @@ export class UsersRepository {
   async remove(id: string): Promise<boolean> {
     await this.prisma.user.delete({ where: { id } });
     return true;
+  }
+
+  async findAll(query: UserQueryDto): Promise<UserModel[]> {
+    const where: any = {};
+
+    if (query.email)
+      where.email = { contains: query.email, mode: 'insensitive' };
+    if (query.firstName)
+      where.firstName = { contains: query.firstName, mode: 'insensitive' };
+    if (query.lastName)
+      where.lastName = { contains: query.lastName, mode: 'insensitive' };
+    if (query.role) where.role = query.role;
+    if (query.isActive !== undefined) where.isActive = query.isActive;
+
+    const rows = await this.prisma.user.findMany({
+      where,
+      skip: query.skip,
+      take: query.take,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return rows.map(mapDbToModel);
   }
 }

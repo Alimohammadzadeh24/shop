@@ -8,6 +8,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -19,11 +20,15 @@ import {
   ApiQuery,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { User } from '../common/decorators/user.decorator';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ReturnsService } from './returns.service';
 import { CreateReturnDto } from './dto/create-return.dto';
 import { UpdateReturnStatusDto } from './dto/update-return-status.dto';
 import { ReturnQueryDto } from './dto/return-query.dto';
+import { MyReturnsQueryDto } from './dto/my-returns-query.dto';
 import { ReturnMapper } from '../domain/mappers/return.mapper';
 import { ReturnResponseDto } from './dto/return-response.dto';
 
@@ -33,6 +38,8 @@ export class ReturnsController {
   constructor(private readonly returnsService: ReturnsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a return request',
@@ -80,8 +87,11 @@ export class ReturnsController {
       error: 'Bad Request',
     },
   })
-  async create(@Body() dto: CreateReturnDto): Promise<unknown> {
-    const model = await this.returnsService.create(dto);
+  async create(
+    @User('sub') userId: string,
+    @Body() dto: CreateReturnDto,
+  ): Promise<unknown> {
+    const model = await this.returnsService.create(userId, dto);
     return ReturnMapper.toResponseDto(model);
   }
 
@@ -129,6 +139,54 @@ export class ReturnsController {
   })
   async findAll(@Query() query: ReturnQueryDto): Promise<unknown> {
     const models = await this.returnsService.findAll(query);
+    return models.map(ReturnMapper.toResponseDto);
+  }
+
+  @Get('my-returns')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get current user returns',
+    description:
+      'Retrieve return requests for the currently authenticated user with optional filtering.',
+  })
+  @ApiQuery({
+    name: 'orderId',
+    description: 'Filter returns by order ID',
+    required: false,
+    example: 'clx1b2c3d4e5f6g7h8i9j0k1',
+  })
+  @ApiQuery({
+    name: 'status',
+    description: 'Filter returns by status',
+    required: false,
+    example: 'REQUESTED',
+  })
+  @ApiQuery({
+    name: 'skip',
+    description: 'Number of returns to skip for pagination',
+    required: false,
+    type: Number,
+    example: 0,
+  })
+  @ApiQuery({
+    name: 'take',
+    description: 'Number of returns to return (max 50)',
+    required: false,
+    type: Number,
+    example: 10,
+  })
+  @ApiOkResponse({
+    description: 'User returns retrieved successfully',
+    type: [ReturnResponseDto],
+  })
+  async getMyReturns(
+    @User('sub') userId: string,
+    @Query() query: MyReturnsQueryDto,
+  ): Promise<unknown> {
+    // Create the full query with userId from token
+    const fullQuery: ReturnQueryDto = { ...query, userId };
+    const models = await this.returnsService.findAll(fullQuery);
     return models.map(ReturnMapper.toResponseDto);
   }
 

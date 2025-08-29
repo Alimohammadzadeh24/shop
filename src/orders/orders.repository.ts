@@ -86,6 +86,7 @@ export class OrdersRepository {
     const where: any = {};
     if (query.userId) where.userId = query.userId;
     if (query.status) where.status = query.status;
+
     const rows = await this.prisma.order.findMany({
       where,
       skip: query.skip,
@@ -93,6 +94,7 @@ export class OrdersRepository {
       orderBy: { createdAt: 'desc' },
       include: { items: true },
     });
+
     return rows.map(mapOrder);
   }
 

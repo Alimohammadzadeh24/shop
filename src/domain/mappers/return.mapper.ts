@@ -4,12 +4,12 @@ import { ReturnResponseDto } from '../../returns/dto/return-response.dto';
 import { ReturnStatusEnum } from '../../common/enums/return-status.enum';
 
 export class ReturnMapper {
-  static fromCreateDto(dto: CreateReturnDto): ReturnModel {
+  static fromCreateDto(dto: CreateReturnDto, userId: string): ReturnModel {
     const now = new Date();
     return {
       id: '',
       orderId: dto.orderId,
-      userId: dto.userId,
+      userId: userId,
       reason: dto.reason,
       status: ReturnStatusEnum.REQUESTED,
       refundAmount: dto.refundAmount,
@@ -31,5 +31,3 @@ export class ReturnMapper {
     };
   }
 }
-
-

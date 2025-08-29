@@ -8,10 +8,6 @@ export class CreateReturnDto {
 
   @ApiProperty()
   @IsString()
-  userId!: string;
-
-  @ApiProperty()
-  @IsString()
   reason!: string;
 
   @ApiProperty()

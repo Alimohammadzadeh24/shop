@@ -6,6 +6,7 @@ import {
   Body,
   Patch,
   Delete,
+  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import {
   ApiOperation,
   ApiParam,
   ApiBody,
+  ApiQuery,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -23,6 +25,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserQueryDto } from './dto/user-query.dto';
 import { UserMapper } from '../domain/mappers/user.mapper';
 import { UserResponseDto } from './dto/user-response.dto';
 
@@ -103,6 +106,89 @@ export class UsersController {
   async create(@Body() dto: CreateUserDto): Promise<unknown> {
     const model = await this.usersService.create(dto);
     return UserMapper.toResponseDto(model);
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Get all users',
+    description:
+      'Retrieve users with optional filtering by email, name, role, or active status. Supports pagination.',
+  })
+  @ApiQuery({
+    name: 'email',
+    description: 'Filter users by email (partial match)',
+    required: false,
+    example: 'john@example.com',
+  })
+  @ApiQuery({
+    name: 'firstName',
+    description: 'Filter users by first name (partial match)',
+    required: false,
+    example: 'John',
+  })
+  @ApiQuery({
+    name: 'lastName',
+    description: 'Filter users by last name (partial match)',
+    required: false,
+    example: 'Doe',
+  })
+  @ApiQuery({
+    name: 'role',
+    description: 'Filter users by role',
+    required: false,
+    enum: ['ADMIN', 'PRIMARY', 'SECONDARY', 'USER'],
+    example: 'USER',
+  })
+  @ApiQuery({
+    name: 'isActive',
+    description: 'Filter users by active status',
+    required: false,
+    type: Boolean,
+    example: true,
+  })
+  @ApiQuery({
+    name: 'skip',
+    description: 'Number of users to skip for pagination',
+    required: false,
+    type: Number,
+    example: 0,
+  })
+  @ApiQuery({
+    name: 'take',
+    description: 'Number of users to return (max 50)',
+    required: false,
+    type: Number,
+    example: 10,
+  })
+  @ApiOkResponse({
+    description: 'Users retrieved successfully',
+    type: [UserResponseDto],
+    example: [
+      {
+        id: 'clx1b2c3d4e5f6g7h8i9j0k1',
+        email: 'admin@example.com',
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'ADMIN',
+        isActive: true,
+        createdAt: '2024-01-15T10:30:00Z',
+        updatedAt: '2024-01-15T10:30:00Z',
+      },
+      {
+        id: 'clx1b2c3d4e5f6g7h8i9j0k2',
+        email: 'user@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        role: 'USER',
+        isActive: true,
+        createdAt: '2024-01-15T11:00:00Z',
+        updatedAt: '2024-01-15T11:00:00Z',
+      },
+    ],
+  })
+  async findAll(@Query() query: UserQueryDto): Promise<unknown> {
+    const models = await this.usersService.findAll(query);
+    return models.map(UserMapper.toResponseDto);
   }
 
   @Get(':id')

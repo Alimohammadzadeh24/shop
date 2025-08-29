@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserQueryDto } from './dto/user-query.dto';
 import { UserModel } from '../domain/user.model';
 import { UserMapper } from '../domain/mappers/user.mapper';
 import { UsersRepository } from './users.repository';
@@ -138,5 +139,30 @@ export class UsersService {
    */
   async remove(id: string): Promise<boolean> {
     return this.repo.remove(id);
+  }
+
+  /**
+   * Retrieves users with optional filtering and pagination support.
+   *
+   * @async
+   * @function findAll
+   * @param {UserQueryDto} query - Query parameters for filtering and pagination
+   * @returns {Promise<UserModel[]>} Array of user models matching the criteria
+   *
+   * @example
+   * ```typescript
+   * const users = await usersService.findAll({
+   *   role: 'USER',
+   *   isActive: true,
+   *   skip: 0,
+   *   take: 10
+   * });
+   * console.log(users.length); // Number of users found
+   * ```
+   *
+   * @since 1.0.0
+   */
+  async findAll(query: UserQueryDto): Promise<UserModel[]> {
+    return this.repo.findAll(query);
   }
 }
